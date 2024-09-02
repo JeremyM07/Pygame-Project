@@ -23,9 +23,22 @@ pygame.display.set_caption("Untitled Fighter Game")
 # defining menu font  
 MenuFont = pygame.font.SysFont('Corbel',35) 
 #render menu font
+
 text1 = MenuFont.render('Start Game' , True , WHITE)
 text2 = MenuFont.render('Options' , True , WHITE)
 text3 = MenuFont.render('Quit' , True , WHITE)
+
+
+text4 = MenuFont.render('CPU' , True , WHITE)
+text5 = MenuFont.render('Shinobi' , True , WHITE)
+text6 = MenuFont.render('Samurai' , True , WHITE)
+text7 = MenuFont.render('Start Battle!' , True , WHITE)
+text8 = MenuFont.render('P1 Wins!' , True , WHITE)
+text9 = MenuFont.render('P2 Wins!' , True , WHITE)
+
+
+text10 = MenuFont.render('Restart' , True , WHITE)
+text11 = MenuFont.render('Main Menu' , True , WHITE)
 #menu buttons y pos
 starttextY = (screen_height/2)-150
 optionsY = starttextY+75
@@ -35,6 +48,11 @@ menuColor1 = BLACK
 menuColor2 = BLACK
 menuColor3 = BLACK
 menuColor4 = BLACK
+menuColor5 = BLACK
+menuColor6 = BLACK
+menuColor7 = BLACK
+menuColor8 = BLACK
+menuColor9 = BLACK
 
 
 
@@ -50,7 +68,8 @@ P1Picked = False
 P2Picked = False
 shinobiPicked = False
 samuraiPicked = False
-CPU = False
+CPU1 = False
+CPU2 = False
 
 #define fighter variables
 Shinobi_Size = 128 #size of animation image in pixels
@@ -80,8 +99,8 @@ samurai_Animationsteps = (6,8,12,6,4,4,5,3)
 
 
 #create instances of fighters
-P1 = Fighter(200,450, False, ShinobiData, shinobi_spritesheet, shinobi_Animationsteps, True)
-P2 = Fighter(700,450,True, SamuraiData, samurai_spritesheet, samurai_Animationsteps, False)
+P1 = Fighter(200,450, False, ShinobiData, shinobi_spritesheet, shinobi_Animationsteps, True,CPU1)
+P2 = Fighter(700,450,True, SamuraiData, samurai_spritesheet, samurai_Animationsteps, False,CPU2)
 
 
 #draw menu buttons + box around it
@@ -112,16 +131,43 @@ def drawStart():
     else:
         menuColor3 = BLACK
 
+def drawBattleDone(P1):
+    global menuColor8
+    global menuColor9
+    if P1:
+        screen.blit(text8 , (screen_width/2-80,screen_height/2 - 80))
+    else:
+        screen.blit(text9 , (screen_width/2-80,screen_height/2 - 80))
+    pygame.draw.rect(screen,menuColor8,(screen_width/2-80,screen_height/2,158,40))
+    screen.blit(text10 , (screen_width/2-80,screen_height/2))
+    pygame.draw.rect(screen,menuColor9,(screen_width/2-80,screen_height/2 + 50,158,40))
+    screen.blit(text11 , (screen_width/2-80,screen_height/2 + 50))
+
+    if (screen_width/2)-95 <= mouse[0] <= (screen_width/2)+85 and screen_height/2 <= mouse[1] <= screen_height/2 +48:
+        menuColor8 = BLUE
+    else:
+        menuColor8 = BLACK
+    if (screen_width/2)-95 <= mouse[0] <= (screen_width/2)+85 and screen_height/2 + 50 <= mouse[1] <= screen_height/2 + 98:
+        menuColor9 = BLUE
+    else:
+        menuColor9 = BLACK
+
+
 portraitY = 200
 def charPortraits():
     global menuColor1
     global menuColor2
     global menuColor3
     global menuColor4
+    global menuColor5
+    global menuColor6
+    global menuColor7
     global portraitY
     global P2Picked
     global P1Picked
     portraitWidth, portraitHeight = 125, 175
+    global P2
+    global P1
     P1.update_action(0)
     P2.update_action(0)
     P1image = pygame.transform.flip(P1.image, False, False)
@@ -163,13 +209,36 @@ def charPortraits():
         else:
             menuColor4 = BLACK
 
+    #CPU Buttons
+    pygame.draw.rect(screen,menuColor5,(125,450,175,50))
+    screen.blit(text4,(140,460))
+    pygame.draw.rect(screen,menuColor6,(725,447,175,50))
+    screen.blit(text4,(740,457))
+    if not CPU1:
+        if 125 <= mouse[0] <= 300 and 450 <= mouse[1] <= 500:
+            menuColor5 = BLUE
+        else:
+            menuColor5 = BLACK
 
+    if not CPU2:
+        if 725 <= mouse[0] <= 900 and 450 <= mouse[1] <= 500:
+            menuColor6 = BLUE
+        else:
+            menuColor6 = BLACK
+
+    #start battle button
+    pygame.draw.rect(screen,menuColor7,(420,550,180,50))
+    screen.blit(text7,(425,555))
+    if 420 <= mouse[0] <= 600 and 550 <= mouse[1] <= 600:
+        menuColor7 = BLUE
+    else:
+        menuColor7 = BLACK
     
 
 
 #bg draw function
 def drawBG():
-    scaled_bg = pygame.transform.scale(bg_image,(screen_width,screen_height))
+    scaled_bg = pygame.transform.scale(bg_image,( screen_width, screen_height))
     screen.blit(scaled_bg,(0,0))
 
 #define health bar function
@@ -224,6 +293,11 @@ while not done:
                             shinobiPicked = True
                             P1Picked = True
                             menuColor1 = GREEN
+                    else:
+                        if not P2Picked:
+                            shinobiPicked = False
+                            P1Picked = False
+                            menuColor1 = BLACK
                 
 
             if 250 <= mouse[0] <= 380 and portraitY <= mouse[1] <= portraitY+180:
@@ -237,6 +311,11 @@ while not done:
                             samuraiPicked = True
                             P1Picked = True
                             menuColor2 = GREEN
+                    else:
+                        if not P2Picked:
+                            samuraiPicked = False
+                            P1Picked = False
+                            menuColor1 = BLACK
 
 
             if 650 <= mouse[0] <= 780 and portraitY <= mouse[1] <= portraitY+180:
@@ -250,6 +329,11 @@ while not done:
                             shinobiPicked = True
                             P2Picked = True
                             menuColor3 = GREEN
+                    else:
+                        if not P1Picked:
+                            shinobiPicked = False
+                            P2Picked = False
+                            menuColor1 = BLACK
 
             if 850 <= mouse[0] <= 980 and portraitY <= mouse[1] <= portraitY+180:
                 if charSelect:
@@ -262,12 +346,63 @@ while not done:
                             samuraiPicked = True
                             P2Picked = True
                             menuColor4 = GREEN
-            if P1Picked and P2Picked:
-                charSelect = False
-                if menuColor2 == GREEN or menuColor3 == GREEN:
-                    P1 = Fighter(200,450,False, SamuraiData, samurai_spritesheet, samurai_Animationsteps, True)
-                    P2 = Fighter(700,450, True, ShinobiData, shinobi_spritesheet, shinobi_Animationsteps, False)
-                startBattle = True
+                    else:
+                        if not P1Picked:
+                            samuraiPicked = False
+                            P2Picked = False
+                            menuColor1 = BLACK
+
+            if 125 <= mouse[0] <= 300 and 450 <= mouse[1] <= 500:
+                if charSelect:
+                    if not CPU1:
+                        CPU1 = True
+                        menuColor5 = GREEN
+                    else:
+                        CPU1 = False
+                        menuColor5 = BLACK
+
+            if 725 <= mouse[0] <= 900 and 450 <= mouse[1] <= 500:
+                if charSelect:
+                    if not CPU2:
+                        CPU2 = True
+                        menuColor6 = GREEN
+                    else:
+                        CPU2 = False
+                        menuColor6 = BLACK
+            if 420 <= mouse[0] <= 600 and 550 <= mouse[1] <= 600:
+                if P1Picked and P2Picked:
+                    menuColor7 = GREEN
+                    charSelect = False
+                    if menuColor2 == GREEN or menuColor3 == GREEN:
+                        del P1
+                        del P2
+                        P1 = Fighter(200,450,False, SamuraiData, samurai_spritesheet, samurai_Animationsteps, True,CPU1)
+                        P2 = Fighter(700,450, True, ShinobiData, shinobi_spritesheet, shinobi_Animationsteps, False,CPU2)
+                    startBattle = True
+
+            if (screen_width/2)-95 <= mouse[0] <= (screen_width/2)+85 and screen_height/2 <= mouse[1] <= screen_height/2 +48:
+                if battleDone:
+                    P1.restoreHealth()
+                    P2.restoreHealth()
+                    startBattle = True
+                    battleDone = False
+
+            if (screen_width/2)-95 <= mouse[0] <= (screen_width/2)+85 and screen_height/2 + 50 <= mouse[1] <= screen_height/2 + 98:
+                if battleDone:
+                    P1.restoreHealth()
+                    P2.restoreHealth()
+                    MainMenu = True
+                    del P1
+                    del P2
+                    P1 = Fighter(200,450, False, ShinobiData, shinobi_spritesheet, shinobi_Animationsteps, True,CPU1)
+                    P2 = Fighter(700,450,True, SamuraiData, samurai_spritesheet, samurai_Animationsteps, False,CPU2)
+                    P1Picked = False
+                    P2Picked = False
+                    samuraiPicked = False
+                    shinobiPicked = False
+                    battleDone = False
+
+        
  
                 
     if firstLaunch:
@@ -308,6 +443,17 @@ while not done:
         #draw fighters
         P1.draw(screen)
         P2.draw(screen)
+    
+    if P1.dead or P2.dead:
+        startBattle = False
+        battleDone = True
+
+    if battleDone:
+        if P1.dead:
+            drawBattleDone(False)
+        elif P2.dead:
+            drawBattleDone(True)
+
 
 
 
